@@ -1,0 +1,15 @@
+{
+    "name": "nursan/opencart-module-generator",
+    "description": "Module generator for opencart",
+    "type": "template",
+    "authors": [
+        {
+            "name": "Nursan amar",
+            "email": "nursan011@gmail.com"
+        }
+    ],
+    "require": {
+        "henrikbjorn/lurker": "^1.2",
+        "consolidation/robo": "^1.4"
+    }
+}
