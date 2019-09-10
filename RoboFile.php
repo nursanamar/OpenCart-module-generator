@@ -4,6 +4,16 @@
  *
  * @see http://robo.li/
  */
+
+require_once 'vendor/autoload.php';
+
+if (file_exists('.env')) {
+    $dotenv = Dotenv\Dotenv::create(__DIR__);
+    $dotenv->load();
+}
+
+use pmaslak\PhpObfuscator\Obfuscator;
+
 class RoboFile extends \Robo\Tasks
 {
     public function moduleNew()
@@ -108,5 +118,67 @@ class RoboFile extends \Robo\Tasks
         $this->_touch($file_path);
 
         return $file_path;
+    }
+
+    public function moduleInstall()
+    {
+        $this->taskFilesystemStack()
+            ->mirror('src/upload', getenv('OC_ROOT'))
+            ->copy('src/install.xml', getenv('OC_ROOT') . '/system/install.ocmod.xml')
+            ->run();
+    }
+
+    public function moduleWatch()
+    {
+        $this->moduleInstall();
+
+        $this->taskWatch()->monitor('src', function () {
+            $this->moduleInstall();
+        })->run();
+    }
+
+    public function moduleBuild($opts = ["with-obf" => false])
+    {
+        $this->taskDeleteDir('build')->run();
+        $this->taskFileSystemStack()->mkdir('build')->run();
+
+        $module_name = getenv("MODULE_NAME") ? getenv("MODULE_NAME") : "build";
+        $ver = getenv("MODULE_VER") ? "v" . getenv("MODULE_VER") : '';
+        $filename = $module_name . $ver . '.ocmod.zip';
+        $this->taskExec('zip')->dir('src')->arg('-r')->arg('../build/' . $filename)->arg('./')->run();
+
+        if ($opts['with-obf']) {
+            $this->moduleObf();
+        }
+    }
+
+    public function moduleObf()
+    {
+        $this->taskDeleteDir('obf')->run();
+        $this->taskFileSystemStack()->mkdir('obf')->run();
+
+        $options = [
+            "no-obfuscate-method-name",
+            "no-obfuscate-class-name",
+            "no-obfuscate-property-name",
+            "no-obfuscate-constant-name",
+            "no-obfuscate-variable-name"
+        ];
+
+        $obfuscator = new Obfuscator([
+            "allowed_mime_types" => ['text/x-php'],
+            "obfuscation_options" => $options,
+        ]);
+
+        $obfuscator->obfuscateDirectory('src/', 'obf/');
+
+         $this->taskFilesystemStack()->copy('src/install.xml','obf/install.xml')->run();
+
+        $module_name = getenv("MODULE_NAME") ? getenv("MODULE_NAME") : "build";
+        $ver = getenv("MODULE_VER") ? "v" . getenv("MODULE_VER") : '';
+        $filename = $module_name . $ver . '-obf.ocmod.zip';
+        $this->taskExec('zip')->dir('obf')->arg('-r')->arg('../build/' . $filename)->arg('./')->run();
+
+        $this->taskDeleteDir('obf')->run();
     }
 }

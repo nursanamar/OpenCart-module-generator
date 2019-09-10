@@ -10,6 +10,8 @@
     ],
     "require": {
         "henrikbjorn/lurker": "^1.2",
-        "consolidation/robo": "^1.4"
+        "consolidation/robo": "^1.4",
+        "vlucas/phpdotenv": "^3.5",
+        "pmaslak/php-obfuscator": "^1.1"
     }
 }
