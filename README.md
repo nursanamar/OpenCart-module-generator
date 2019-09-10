@@ -13,7 +13,12 @@ $ cd OpenCart-module-generator
 #Install dependecies
 $ composer install
 
+#.env file
+$ cp .env.example .env
+
 ```
+
+Setup your `.env` file
 
 ## Usage
 
