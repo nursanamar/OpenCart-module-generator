@@ -42,7 +42,7 @@ class RoboFile extends \Robo\Tasks
         $class_name = "Controller".str_replace(" ","",ucwords(implode(" ",$pathPart)));
         $class_name .= str_replace(" ", '', ucwords(str_replace('_', ' ', $filename)));
         
-        $dir = "src/upload/admin/controller/" . $path . "/";
+        $dir = getenv('MODULE_FOLDER')."/upload/admin/controller/" . $path . "/";
         $file_path = $dir.$filename.".php";
 
         $this->_mkdir($dir);
@@ -57,7 +57,7 @@ class RoboFile extends \Robo\Tasks
             ->line("}\n")
             ->run();
         
-        $dir = "src/upload/catalog/controller/" . $path . "/";
+        $dir = getenv('MODULE_FOLDER')."/upload/catalog/controller/" . $path . "/";
         $file_path = $dir.$filename.".php";
 
         $this->_mkdir($dir);
@@ -80,7 +80,7 @@ class RoboFile extends \Robo\Tasks
         $class_name = "Model".str_replace(" ","",ucwords(implode(" ",$pathPart)));
         $class_name .= str_replace(" ", '', ucwords(str_replace('_', ' ', $filename)));
         
-        $dir = "src/upload/admin/model/" . $path . "/";
+        $dir = getenv('MODULE_FOLDER')."/upload/admin/model/" . $path . "/";
         $file_path = $dir.$filename.".php";
 
         $this->_mkdir($dir);
@@ -96,13 +96,13 @@ class RoboFile extends \Robo\Tasks
 
     private function makeTwig($path, $filename)
     {   
-        $dir = "src/upload/admin/view/template/" . $path . "/";
+        $dir = getenv('MODULE_FOLDER')."/upload/admin/view/template/" . $path . "/";
         $file_path = $dir.$filename.".twig";
 
         $this->_mkdir($dir);
         $this->_touch($file_path);
 
-        $dir = "src/upload/catalog/view/template/" . $path . "/";
+        $dir = getenv('MODULE_FOLDER')."/upload/catalog/view/template/" . $path . "/";
         $file_path = $dir.$filename.".twig";
 
         $this->_mkdir($dir);
@@ -111,7 +111,7 @@ class RoboFile extends \Robo\Tasks
 
     private function makeLanguage($path,$filename,$code = 'en-gb'){
 
-        $dir = 'src/upload/admin/language/'.$code.'/'.$path.'/';
+        $dir = getenv('MODULE_FOLDER').'/upload/admin/language/'.$code.'/'.$path.'/';
         $file_path = $dir.$filename.".php";
 
         $this->_mkdir($dir);
@@ -123,8 +123,8 @@ class RoboFile extends \Robo\Tasks
     public function moduleInstall()
     {
         $this->taskFilesystemStack()
-            ->mirror('src/upload', getenv('OC_ROOT'))
-            ->copy('src/install.xml', getenv('OC_ROOT') . '/system/install.ocmod.xml')
+            ->mirror(getenv('MODULE_FOLDER').'/upload', getenv('OC_ROOT'))
+            ->copy(getenv('MODULE_FOLDER').'/install.xml', getenv('OC_ROOT') . '/system/install.ocmod.xml')
             ->run();
     }
 
@@ -132,7 +132,7 @@ class RoboFile extends \Robo\Tasks
     {
         $this->moduleInstall();
 
-        $this->taskWatch()->monitor('src', function () {
+        $this->taskWatch()->monitor(getenv("MODULE_FOLDER"), function () {
             $this->moduleInstall();
         })->run();
     }
@@ -145,7 +145,7 @@ class RoboFile extends \Robo\Tasks
         $module_name = getenv("MODULE_NAME") ? getenv("MODULE_NAME") : "build";
         $ver = getenv("MODULE_VER") ? "v" . getenv("MODULE_VER") : '';
         $filename = $module_name . $ver . '.ocmod.zip';
-        $this->taskExec('zip')->dir('src')->arg('-r')->arg('../build/' . $filename)->arg('./')->run();
+        $this->taskExec('zip')->dir(getenv("MODULE_FOLDER"))->arg('-r')->arg('../build/' . $filename)->arg('./')->run();
 
         if ($opts['with-obf']) {
             $this->moduleObf();
@@ -170,9 +170,9 @@ class RoboFile extends \Robo\Tasks
             "obfuscation_options" => $options,
         ]);
 
-        $obfuscator->obfuscateDirectory('src/', 'obf/');
+        $obfuscator->obfuscateDirectory(getenv("MODULE_FOLDER").'/', 'obf/');
 
-         $this->taskFilesystemStack()->copy('src/install.xml','obf/install.xml')->run();
+        $this->taskFilesystemStack()->copy(getenv("MODULE_FOLDER").'/install.xml','obf/install.xml')->run();
 
         $module_name = getenv("MODULE_NAME") ? getenv("MODULE_NAME") : "build";
         $ver = getenv("MODULE_VER") ? "v" . getenv("MODULE_VER") : '';
