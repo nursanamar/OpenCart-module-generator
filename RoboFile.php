@@ -102,7 +102,7 @@ class RoboFile extends \Robo\Tasks
         $this->_mkdir($dir);
         $this->_touch($file_path);
 
-        $dir = getenv('MODULE_FOLDER')."/upload/catalog/view/template/" . $path . "/";
+        $dir = getenv('MODULE_FOLDER')."/upload/catalog/view/theme/default/template/" . $path . "/";
         $file_path = $dir.$filename.".twig";
 
         $this->_mkdir($dir);
