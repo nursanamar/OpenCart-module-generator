@@ -51,3 +51,11 @@ $ vendor/bin/robo module:build
 ```
 
 Generate ocmod file in `build` folder, add `--with-obf` option to build the obfuscated version of your ocmod
+
+### Deploy module
+
+```bash
+$ vendor/bin/robo module:deploy
+```
+
+Upload generated ocmod file to the store
